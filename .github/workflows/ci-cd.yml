@@ -90,7 +90,11 @@ jobs:
     - name: Create k3d cluster
       run: |
         k3d cluster create ${{ env.K3D_CLUSTER_NAME }} --port "8000:8000@loadbalancer" --wait
-        kubectl config set-cluster k3d-${{ env.K3D_CLUSTER_NAME }} --server=https://localhost:6443
+        # Update kubeconfig to use the k3d cluster
+        k3d kubeconfig merge ${{ env.K3D_CLUSTER_NAME }} --kubeconfig-switch-context
+        # Verify cluster is accessible
+        kubectl cluster-info
+        kubectl get nodes
         
     - name: Update deployment image
       run: |
@@ -100,8 +104,18 @@ jobs:
         
     - name: Deploy to k3d
       run: |
+        # Debug: Show current cluster info
+        kubectl cluster-info
+        kubectl get nodes
+        
+        # Deploy application
         kubectl apply -f k8s-deployment.yaml
         kubectl apply -f k8s-service.yaml
+        
+        # Debug: Show what was created
+        kubectl get deployments
+        kubectl get services
+        kubectl get pods
         
     - name: Wait for deployment
       run: |
@@ -109,9 +123,21 @@ jobs:
         
     - name: Verify deployment
       run: |
-        kubectl get pods
-        kubectl get services
-        # Test the deployment
+        # Show final status
+        kubectl get pods -o wide
+        kubectl get services -o wide
+        
+        # Wait for pods to be ready
+        kubectl wait --for=condition=ready pod -l app=python-backend --timeout=300s
+        
+        # Test the deployment using the service
         kubectl port-forward service/python-backend-service 8080:8000 &
-        sleep 10
-        curl -f http://localhost:8080/health
+        sleep 15
+        
+        # Test the health endpoint
+        curl -f http://localhost:8080/health || exit 1
+        echo "✅ Health check passed!"
+        
+        # Test the items endpoint
+        curl -f http://localhost:8080/items || exit 1
+        echo "✅ Items endpoint passed!"
