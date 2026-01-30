@@ -45,7 +45,7 @@ async def create_item(item: Dict):
 @app.get("/")
 async def root():
     """Welcome message"""
-    return {"message": "Welcome to Simple Python Backend API", "docs": "/docs"}
+    return {"message": "Welcome to Simple Python Backend API v1.1", "docs": "/docs"}
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
