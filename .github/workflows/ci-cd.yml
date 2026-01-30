@@ -9,7 +9,7 @@ on:
 
 # Environment variables
 env:
-  DOCKER_IMAGE_NAME: your-dockerhub-username/python-backend
+  DOCKER_IMAGE_NAME: YOUR_DOCKERHUB_USERNAME/python-backend  # ← CHANGE THIS!
   K3D_CLUSTER_NAME: dev
 
 jobs:
