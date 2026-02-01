@@ -16,8 +16,8 @@ spec:
     spec:
       containers:
       - name: python-backend
-        image: python-backend:latest
-        imagePullPolicy: Never  # Use local image, don't pull from registry
+        image: <ECR_IMAGE_PLACEHOLDER>
+        imagePullPolicy: IfNotPresent  # Use ECR image, allow pulling
         ports:
         - containerPort: 8000
         # Health check configuration
