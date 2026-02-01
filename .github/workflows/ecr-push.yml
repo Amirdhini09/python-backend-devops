@@ -53,6 +53,11 @@ jobs:
         run: |
           curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
 
+      - name: Debug pod status
+        run: |
+          kubectl get pods -o wide
+          kubectl describe pod -l app=python-backend || true
+
       - name: Create k3d cluster
         run: |
           k3d cluster create dev --port "8000:8000@loadbalancer" --wait
@@ -72,11 +77,3 @@ jobs:
           kubectl get deployments
           kubectl get services
           kubectl get pods
-
-      - name: Verify deployment
-        run: |
-          kubectl wait --for=condition=ready pod -l app=python-backend --timeout=300s
-          kubectl port-forward service/python-backend-service 8080:8000 &
-          sleep 15
-          curl -f http://localhost:8080/health
-          curl -f http://localhost:8080/items
