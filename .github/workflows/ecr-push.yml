@@ -70,6 +70,10 @@ jobs:
           kubectl apply -f k8s-deployment.yaml
           kubectl apply -f k8s-service.yaml
 
+      - name: Wait for pods to be ready
+        run: |
+          kubectl wait --for=condition=ready pod -l app=python-backend --timeout=120s
+
       - name: Debug pod status
         run: |
           kubectl get pods -o wide
